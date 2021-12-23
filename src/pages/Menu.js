@@ -19,7 +19,7 @@ function Menu(props) {
                                 <th>#</th>
                                 <th>Item Name</th>
                                 <th>Category</th>
-                                <th>Price (USD)</th>
+                                <th>Price (MYR)</th>
                             </tr>
                         </thead>
                         <tbody>

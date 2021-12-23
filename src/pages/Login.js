@@ -27,7 +27,7 @@ function Login(props) {
                             <Form.Control.Feedback type='invalid'>Email is required.</Form.Control.Feedback>
                         </Form.Group>
 
-                        <Form.Group className='mb-3' controlId='email'>
+                        <Form.Group className='mb-3' controlId='password'>
                             <Form.Label>Password</Form.Label>
                             <Form.Control type="password" placeholder='Enter password' size='md' />
                             <Form.Control.Feedback type='invalid'>Password is required.</Form.Control.Feedback>
