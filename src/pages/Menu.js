@@ -1,7 +1,20 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Table, Card, Image, Button, } from 'react-bootstrap';
 
+import FirestoreService from '../utils/services/FirestoreService';
+
 function Menu(props) {
+
+    const [menuItems, setMenuItems] = useState([]);
+
+    useEffect(() => {
+        FirestoreService.getAllMenuItems().then((response) => {
+            setMenuItems(response._delegate._snapshot.docChanges);
+        }).catch((e) => {
+            alert("Error occured while fetching the menu item. " + e);
+        })
+    }, [])
+
     return (
         <>
             <Card style={{ margin: 24 }}>
@@ -23,18 +36,14 @@ function Menu(props) {
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td>Cheessy Garlic Pita</td>
-                                <td>Starters & Snacks</td>
-                                <td>4</td>
-                            </tr>
-                            <tr>
-                                <td>2</td>
-                                <td>Hummus with  PERi-PERi Drizzle & Pita</td>
-                                <td>Starters & Snacks</td>
-                                <td>5.5</td>
-                            </tr>
+                            {(menuItems) && (menuItems.map((menuItem, index) => (
+                                <tr key={index}>
+                                    <td>{index + 1}</td>
+                                    <td>{menuItem.doc.data.value.mapValue.fields.itemName.stringValue}</td>
+                                    <td>{menuItem.doc.data.value.mapValue.fields.itemCategory.stringValue}</td>
+                                    <td>{menuItem.doc.data.value.mapValue.fields.itemPrice.doubleValue}</td>
+                                </tr>
+                            )))}
                         </tbody>
                     </Table>
                 </Card.Body>
