@@ -1,22 +1,27 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Card, Image, Button, } from 'react-bootstrap';
+import { Table, Card, Image, Button, Spinner } from 'react-bootstrap';
 
 import FirestoreService from '../utils/services/FirestoreService';
 
 function Menu(props) {
 
     const [menuItems, setMenuItems] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
+        setIsLoading(true);
         FirestoreService.getAllMenuItems().then((response) => {
+            setIsLoading(false);
             setMenuItems(response._delegate._snapshot.docChanges);
         }).catch((e) => {
+            setIsLoading(false);
             alert("Error occured while fetching the menu item. " + e);
         })
     }, [])
 
     return (
         <>
+            {(isLoading === true) && <Spinner animation="border" variant="secondary" />}
             <Card style={{ margin: 24 }}>
                 <Card.Header className="d-flex justify-content-between align-items-center">
                     <div className="align-items-center" style={{ marginRight: 8 }}>
@@ -41,7 +46,7 @@ function Menu(props) {
                                     <td>{index + 1}</td>
                                     <td>{menuItem.doc.data.value.mapValue.fields.itemName.stringValue}</td>
                                     <td>{menuItem.doc.data.value.mapValue.fields.itemCategory.stringValue}</td>
-                                    <td>{menuItem.doc.data.value.mapValue.fields.itemPrice.doubleValue}</td>
+                                    <td>{menuItem.doc.data.value.mapValue.fields.itemPrice.doubleValue ? menuItem.doc.data.value.mapValue.fields.itemPrice.doubleValue : menuItem.doc.data.value.mapValue.fields.itemPrice.integerValue}</td>
                                 </tr>
                             )))}
                         </tbody>

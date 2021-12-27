@@ -72,6 +72,7 @@ function Dashboard(props) {
         setShowAddEditForm(false);
         setShowDeleteDialogue(false);
         setCurrentMenuItemId("");
+        setAddEditFormType("Add");
         setCurrentMenuItem({ "itemName": '', "itemCategory": '', "itemPrice": 0 })
         setIsLoading(false);
     }
@@ -127,7 +128,7 @@ function Dashboard(props) {
                 {/* Add/Edit Form START */}
                 <Modal show={showAddEditForm} onHide={handleModalClose}>
                     <Form noValidate validated={validated} onSubmit={handleAddEditFormSubmit}>
-                        <Modal.Header>
+                        <Modal.Header closeButton>
                             <Modal.Title>{(addEditFormType === 'Add') ? 'Add Menu Item' : 'Edit'}</Modal.Title>
                         </Modal.Header>
                         <Modal.Body>
