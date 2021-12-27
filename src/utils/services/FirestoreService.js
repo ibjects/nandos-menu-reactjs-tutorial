@@ -37,4 +37,32 @@ function AddNewMenuItem(itemName, itemCategory, itemPrice) {
     })
 }
 
-export default { getAllMenuItems, getAllMenuCategories, AddNewMenuItem }
+function UpateMenuItem(menuItemID, itemName, itemCategory, itemPrice) {
+
+    return new Promise((resolve, reject) => {
+
+        const data = {
+            "itemName": itemName,
+            "itemCategory": itemCategory,
+            "itemPrice": parseFloat(itemPrice)
+        }
+
+        db.collection("MenuItems").doc(menuItemID).update(data).then(() => {
+            resolve()
+        }).catch((e) => {
+            reject(e)
+        })
+    })
+}
+
+function DeleteMenuItem(menuItemID) {
+    return new Promise((resolve, reject) => {
+        db.collection("MenuItems").doc(menuItemID).delete().then(() => {
+            resolve()
+        }).catch((e) => {
+            reject(e)
+        })
+    })
+}
+
+export default { getAllMenuItems, getAllMenuCategories, AddNewMenuItem, UpateMenuItem, DeleteMenuItem }

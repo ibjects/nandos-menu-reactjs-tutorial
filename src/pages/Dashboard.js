@@ -20,7 +20,8 @@ function Dashboard(props) {
         "itemName": '',
         "itemCategory": '',
         "itemPrice": 0
-    })
+    });
+    const [currentMenuItemId, setCurrentMenuItemId] = useState("");
 
     firebase.auth().onAuthStateChanged((user) => {
         if (user) {
@@ -70,6 +71,8 @@ function Dashboard(props) {
     const handleModalClose = () => {
         setShowAddEditForm(false);
         setShowDeleteDialogue(false);
+        setCurrentMenuItemId("");
+        setCurrentMenuItem({ "itemName": '', "itemCategory": '', "itemPrice": 0 })
         setIsLoading(false);
     }
 
@@ -82,7 +85,16 @@ function Dashboard(props) {
                 setIsLoading(true);
                 FirestoreService.AddNewMenuItem(itemName.value, itemCategory.value, itemPrice.value).then(() => {
                     alert(`${itemName.value} is successfully added to the menu.`)
-                    setCurrentMenuItem({ "itemName": '', "itemCategory": '', "itemPrice": 0 })
+                    handleModalClose();
+                    window.location.reload(false);
+                }).catch((e) => {
+                    alert("Error occured: " + e.message);
+                    setIsLoading(false);
+                })
+            } else if (addEditFormType === "Edit") {
+                setIsLoading(true);
+                FirestoreService.UpateMenuItem(currentMenuItemId, itemName.value, itemCategory.value, itemPrice.value).then(() => {
+                    alert(`${itemName.value} is successfully updated.`);
                     handleModalClose();
                     window.location.reload(false);
                 }).catch((e) => {
@@ -91,12 +103,19 @@ function Dashboard(props) {
                 })
             }
         }
-
         setValidated(true)
     }
 
-    const handleMenuItemDelete = (e) => {
-        alert("Delete Functionality Coming Soon");
+    const handleMenuItemDelete = () => {
+        setIsLoading(true);
+        FirestoreService.DeleteMenuItem(currentMenuItemId).then(() => {
+            alert(`Deletion Successful`);
+            handleModalClose();
+            window.location.reload(false);
+        }).catch((e) => {
+            alert("Error occured: " + e.message);
+            setIsLoading(false);
+        })
     }
 
     return (
@@ -144,7 +163,7 @@ function Dashboard(props) {
                                     setCurrentMenuItem({
                                         "itemName": currentMenuItem?.itemName,
                                         "itemCategory": currentMenuItem?.itemCategory,
-                                        "itemPrice": parseFloat((e.target.value) ? e.target.value : 0)
+                                        "itemPrice": e.target.value
                                     })
                                 }} />
                                 <Form.Control.Feedback type='invalid'>Item Price is required</Form.Control.Feedback>
@@ -160,10 +179,10 @@ function Dashboard(props) {
                 {/* Delete Confirmation Dialogue START */}
                 <Modal show={showDeleteDialogue} onHide={handleModalClose}>
                     <Modal.Header closeButton>
-                        <Modal.Title>Delete Menu Item</Modal.Title>
+                        <Modal.Title>Delete {currentMenuItem.itemName}</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        <p>Are you sure you want to delete this menu item?</p>
+                        <p>Are you sure you want to delete {currentMenuItem.itemName}?</p>
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="secondary" onClick={handleModalClose}>Cancel</Button>
@@ -202,10 +221,23 @@ function Dashboard(props) {
                                         <td>{menuItem.doc.data.value.mapValue.fields.itemPrice.doubleValue ? menuItem.doc.data.value.mapValue.fields.itemPrice.doubleValue : menuItem.doc.data.value.mapValue.fields.itemPrice.integerValue}</td>
                                         <td>
                                             <Button variant='primary' onClick={() => {
-                                                alert("Edit functionality coming soon")
+                                                setCurrentMenuItemId(menuItem.doc.key.path.segments[menuItem.doc.key.path.segments.length - 1])
+                                                setCurrentMenuItem({
+                                                    "itemName": menuItem.doc.data.value.mapValue.fields.itemName.stringValue,
+                                                    "itemCategory": menuItem.doc.data.value.mapValue.fields.itemCategory.stringValue,
+                                                    "itemPrice": menuItem.doc.data.value.mapValue.fields.itemPrice.doubleValue ? menuItem.doc.data.value.mapValue.fields.itemPrice.doubleValue : menuItem.doc.data.value.mapValue.fields.itemPrice.integerValue
+                                                });
+                                                setAddEditFormType("Edit");
+                                                setShowAddEditForm(true);
                                             }}>✎ Edit</Button>{' '}
                                             <Button variant='danger' onClick={() => {
-                                                alert("Delete functionality coming soon")
+                                                setCurrentMenuItemId(menuItem.doc.key.path.segments[menuItem.doc.key.path.segments.length - 1]);
+                                                setCurrentMenuItem({
+                                                    "itemName": menuItem.doc.data.value.mapValue.fields.itemName.stringValue,
+                                                    "itemCategory": menuItem.doc.data.value.mapValue.fields.itemCategory.stringValue,
+                                                    "itemPrice": menuItem.doc.data.value.mapValue.fields.itemPrice.doubleValue ? menuItem.doc.data.value.mapValue.fields.itemPrice.doubleValue : menuItem.doc.data.value.mapValue.fields.itemPrice.integerValue
+                                                });
+                                                setShowDeleteDialogue(true);
                                             }}>x Delete</Button>
                                         </td>
                                     </tr>
